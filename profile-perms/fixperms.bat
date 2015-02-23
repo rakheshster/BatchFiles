@@ -3,23 +3,34 @@ REM This script will process each folder and if the context under which it is ru
 
 @ECHO OFF
 setlocal EnableDelayedExpansion
+set DOMAIN=%USERDOMAIN%
 
+REM For loop runs through each file/ folder of name *.V2
+REM Note to self: Use something like 'dir /A:D *.v2' below if you want to limit to folders only
 FOR /d %%D in ("*.v2") DO (
   echo Processing %%D
-  REM FOR /F "delims=." %%U in ('echo %%D') DO echo User is %%U
+  
+  REM Find the user to whom the profile belongs (so we can set ownership back once done)
+  FOR /F "delims=." %%U in ('echo %%D') DO echo User is %%U
+  
+  REM Try to find permissions; if ERRORLEVEL 0 then all is good; 5 implies Access Denied
   icacls %%D /Q 1> nul 2> nul
   IF !errorlevel! EQU 5 (
-    echo    Will fix %%D
+    echo    Profile %%D needs fixing
+    
     echo    Taking ownership of %%D
-    REM takeown /A /F %%D
+    takeown /A /F %%D
     
     echo    Granting Administrators full control to %%D
-    REM icacls %%D /grant BUILTIN\Administrators:F /T 1> nul 2> nul
+    icacls %%D /grant BUILTIN\Administrators:F /T 1> nul 2> nul
     
     echo    Taking ownership of all sub-folders of %%D
-    REM takeown /A /F %%D\* /R /D Y
+    takeown /A /F %%D\* /R /D Y
     
     echo    Enabling inheritance on sub-folders of %%D
-    REM icacls %%D\* /inheritance:e /T 1> nul 2> nul
+    icacls %%D\* /inheritance:e /T 1> nul 2> nul
+    
+    echo    Setting owner back to %%U
+    icacls %%D /setowner %DOMAIN%\%%U
   )
 )
