@@ -19,7 +19,7 @@ FOR /d %%D in ("*.v2") DO (
   REM ECHO %%D emits the folder name - of format username.v2
   REM FOR /f is for reading a text file (or a single line like the output of echo)
   REM "delims=." splits the text along the dot, resulting in two tokens; %U is assigned the first, %V the second, and so on
-  REM By default only the first token is selected (you can select any other token or a range via "tokens=x,y,z delims=."
+  REM By default only the first token of each line is selected (you can select any other token or a range via "tokens=x,y,z delims=."
   FOR /F "delims=." %%U in ('echo %%D') DO set USER=%%U
   
   REM Try to find permissions; if ERRORLEVEL 0 then all is good; 5 implies Access Denied
